@@ -111,7 +111,7 @@ impl Parser {
   fn parse_rules(&mut self) -> Vec<Rule> {
     let mut rules = Vec::new();
     loop {
-      self.p.consume_whitespace();
+      self.consume_whitespace_and_comments();
       if self.p.eof() { break }
       rules.push(self.parse_rule());
     }
@@ -131,6 +131,31 @@ impl Parser {
     }
   }
 
+  // consume and discard whitespace and comments
+  fn consume_whitespace_and_comments(&mut self) {
+    self.p.consume_whitespace();
+    if self.p.starts_with("/*") {
+      assert!(self.p.consume_char() == '/');
+      assert!(self.p.consume_char() == '*');
+
+      loop {
+        if self.p.starts_with("*/") {
+          break;
+        }
+        self.p.consume_char();
+      }
+
+      assert!(self.p.consume_char() == '*');
+      assert!(self.p.consume_char() == '/');
+    }
+    self.p.consume_whitespace();
+
+    // handle case where we have comment-whitespace-comment
+    if self.p.starts_with("/*") {
+      self.consume_whitespace_and_comments();
+    }
+  }
+
   // parse list of simple selectors
   fn parse_selectors(&mut self) -> Vec<Selector> {
     let mut selectors = Vec::new();
@@ -138,12 +163,12 @@ impl Parser {
     loop {
       selectors.push(Simple(self.parse_simple_selector()));
 
-      self.p.consume_whitespace();
+      self.consume_whitespace_and_comments();
 
       match self.p.next_char() {
         ',' => {
           self.p.consume_char();
-          self.p.consume_whitespace();
+          self.consume_whitespace_and_comments();
         }
         '{' => break,
         c => break // instead we should exit/throw exception here
@@ -162,7 +187,7 @@ impl Parser {
     
     let mut declarations = Vec::new();
     loop {
-      self.p.consume_whitespace();
+      self.consume_whitespace_and_comments();
       
       if self.p.next_char() == '}' {
         // end of declaration block
@@ -180,13 +205,13 @@ impl Parser {
   fn parse_declaration(&mut self) -> Declaration {
     let name = self.parse_identifier();
 
-    self.p.consume_whitespace();
+    self.consume_whitespace_and_comments();
     assert!(self.p.consume_char() == ':');
-    self.p.consume_whitespace();
+    self.consume_whitespace_and_comments();
 
     let value = self.parse_value();
 
-    self.p.consume_whitespace();
+    self.consume_whitespace_and_comments();
     assert!(self.p.consume_char() == ';');
 
     Declaration {

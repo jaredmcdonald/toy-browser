@@ -24,14 +24,20 @@ fn test_css() {
       font-size: 1.5em;
     }
 
-    div {
+    /*
+      a css comment
+    */ /* and another one */ /* 
+      how about a third in a row?
+    */
+
+    div { /* another css comment */
       width: 500px;
       height: 23.5%;
     }
 
     #someId,
     .some-class {
-      position: absolute;
+      position: /*here we have a really annoying comment*/ absolute;
     }
   ".to_string();
   let parsed_css = css::parse(source);
