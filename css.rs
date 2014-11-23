@@ -88,6 +88,9 @@ enum Value {
 #[deriving(Show)]
 enum Unit {
   Px,
+  Percentage,
+  Em,
+  UnknownUnit,
 }
 
 #[deriving(Show)]
@@ -218,10 +221,16 @@ impl Parser {
 
   // parse unit (only support px for now)
   fn parse_unit(&mut self) -> Unit {
-    match self.parse_identifier().into_ascii_lower().as_slice() {
+    match self.parse_unit_value().as_slice() {
       "px" => Px,
-      _ => Px // TODO: should exit / throw
+      "%" => Percentage,
+      "em" => Em,
+      _ => UnknownUnit // TODO: handle this better
     }
+  }
+
+  fn parse_unit_value(&mut self) -> String {
+    self.p.consume_while(|c| !c.is_whitespace() && c != ';')
   }
 
   // parse hex color (only hex for now)

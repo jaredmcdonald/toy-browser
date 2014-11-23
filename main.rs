@@ -21,11 +21,12 @@ fn test_css() {
     .foo,
     h1 {
       color: #000000;
+      font-size: 1.5em;
     }
 
     div {
       width: 500px;
-      height: 123px;
+      height: 23.5%;
     }
 
     #someId,
