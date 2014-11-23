@@ -1,7 +1,9 @@
 use std::collections::HashMap;
 
 mod dom;
+mod parser;
 mod html;
+mod css;
 
 fn main() {
   println!("Testing module \"dom\"...");
@@ -9,6 +11,31 @@ fn main() {
 
   println!("Testing module \"html\"...");
   test_html();
+
+  println!("Testing module \"css\"...");
+  test_css();
+}
+
+fn test_css() {
+  let source = "
+    .foo,
+    h1 {
+      color: #000000;
+    }
+
+    div {
+      width: 500px;
+      height: 123px;
+    }
+
+    #someId,
+    .some-class {
+      position: absolute;
+    }
+  ".to_string();
+  let parsed_css = css::parse(source);
+
+  parsed_css.pretty_print();
 }
 
 fn test_html() {
@@ -22,7 +49,7 @@ fn test_html() {
       </body>
   </html>".to_string();
 
-  let parsed_html = html::Parser::parse(source);
+  let parsed_html = html::parse(source);
   parsed_html.pretty_print(0);
 }
 

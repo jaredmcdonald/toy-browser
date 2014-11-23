@@ -1,3 +1,5 @@
+//! DOM (only implements text, comment and element nodes)
+
 use std::collections::HashMap;
 
 pub type AttrMap = HashMap<String, String>;
