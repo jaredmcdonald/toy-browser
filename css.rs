@@ -254,8 +254,10 @@ impl Parser {
     }
   }
 
+  // parse a valid unit value
+  // TODO: improve `consume_while` test
   fn parse_unit_value(&mut self) -> String {
-    self.p.consume_while(|c| !c.is_whitespace() && c != ';')
+    self.p.consume_while(|c| !c.is_whitespace() && c != ';').into_ascii_lower()
   }
 
   // parse hex color (only hex for now)
