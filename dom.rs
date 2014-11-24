@@ -34,21 +34,21 @@ pub struct DocumentData {
 pub fn text (data: String) -> Node {
   Node {
     children: vec![],
-    node_type: Text(data),
+    node_type: NodeType::Text(data),
   }
 }
 
 pub fn comment (data: String) -> Node {
   Node {
     children: vec![],
-    node_type: Comment(data),
+    node_type: NodeType::Comment(data),
   }
 }
 
 pub fn elem (tag_name: String, attrs: AttrMap, children: Vec<Node>) -> Node {
   Node {
     children: children,
-    node_type: Element(ElementData {
+    node_type: NodeType::Element(ElementData {
       attributes: attrs,
       tag_name: tag_name,
     })
@@ -58,7 +58,7 @@ pub fn elem (tag_name: String, attrs: AttrMap, children: Vec<Node>) -> Node {
 pub fn document(children: Vec<Node>, stylesheets: Vec<css::Stylesheet>) -> Node {
   Node {
     children: children,
-    node_type: Document(DocumentData {
+    node_type: NodeType::Document(DocumentData {
       stylesheets: stylesheets
     })
   }

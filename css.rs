@@ -57,7 +57,7 @@ enum Selector {
 impl Selector {
   // get back (id, class, tag) specificity of a Selector
   pub fn specificity(&self) -> Specificity {
-    let Simple(ref simple) = *self;
+    let Selector::Simple(ref simple) = *self;
     let id = simple.id.iter().len();
     let class = simple.class.len();
     let tag = simple.tag_name.iter().len();
@@ -161,7 +161,7 @@ impl Parser {
     let mut selectors = Vec::new();
 
     loop {
-      selectors.push(Simple(self.parse_simple_selector()));
+      selectors.push(Selector::Simple(self.parse_simple_selector()));
 
       self.consume_whitespace_and_comments();
 
@@ -225,13 +225,13 @@ impl Parser {
     match self.p.next_char() {
       '0'...'9' => self.parse_length(),
       '#' => self.parse_color(),
-      _ => Keyword(self.parse_identifier())
+      _ => Value::Keyword(self.parse_identifier())
     }
   }
 
   // parse a Value::Length, e.g., "123.4px"
   fn parse_length(&mut self) -> Value {
-    Length(self.parse_float(), self.parse_unit())
+    Value::Length(self.parse_float(), self.parse_unit())
   }
 
   // parse 32-bit float
@@ -247,10 +247,10 @@ impl Parser {
   // parse unit (only support px for now)
   fn parse_unit(&mut self) -> Unit {
     match self.parse_unit_value().as_slice() {
-      "px" => Px,
-      "%" => Percentage,
-      "em" => Em,
-      _ => UnknownUnit // TODO: handle this better
+      "px" => Unit::Px,
+      "%" => Unit::Percentage,
+      "em" => Unit::Em,
+      _ => Unit::UnknownUnit // TODO: handle this better
     }
   }
 
@@ -263,7 +263,7 @@ impl Parser {
   // parse hex color (only hex for now)
   fn parse_color(&mut self) -> Value {
     assert!(self.p.consume_char() == '#');
-    ColorValue(Color {
+    Value::ColorValue(Color {
       r: self.parse_hex_pair(),
       g: self.parse_hex_pair(),
       b: self.parse_hex_pair(),
