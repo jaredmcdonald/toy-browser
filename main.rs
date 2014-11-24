@@ -47,6 +47,9 @@ fn test_css() {
 
 fn test_html() {
   let source = "<html>
+      <style>
+        .foo { color: red; }
+      </style>
       <body>
           <!-- A comment -->
           <h1>Title</h1>

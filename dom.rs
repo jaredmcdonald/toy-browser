@@ -1,6 +1,7 @@
 //! DOM (only implements text, comment and element nodes)
 
 use std::collections::HashMap;
+use css;
 
 pub type AttrMap = HashMap<String, String>;
 
@@ -15,12 +16,18 @@ pub enum NodeType {
   Text(String),
   Comment(String),
   Element(ElementData),
+  Document(DocumentData),
 }
 
 #[deriving(Show)]
 pub struct ElementData {
   pub tag_name: String,
   pub attributes: AttrMap,
+}
+
+#[deriving(Show)]
+pub struct DocumentData {
+  stylesheets: Vec<css::Stylesheet>,
 }
 
 // constructors
@@ -44,6 +51,15 @@ pub fn elem (tag_name: String, attrs: AttrMap, children: Vec<Node>) -> Node {
     node_type: Element(ElementData {
       attributes: attrs,
       tag_name: tag_name,
+    })
+  }
+}
+
+pub fn document(children: Vec<Node>, stylesheets: Vec<css::Stylesheet>) -> Node {
+  Node {
+    children: children,
+    node_type: Document(DocumentData {
+      stylesheets: stylesheets
     })
   }
 }

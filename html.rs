@@ -1,13 +1,13 @@
-//! HTML parser
-//! (only implements a very basic subset
-//!  of HTML)
+//! (very basic subset of) HTML parser
 
 use std::collections::HashMap;
 use parser;
 use dom;
+use css;
 
 pub struct Parser {
   p : parser::Parser,
+  pub stylesheets: Vec<css::Stylesheet>,
 }
 
 impl Parser {
@@ -124,33 +124,58 @@ impl Parser {
   }
 
   // parse child nodes
-  // return vector of nodes
   fn parse_nodes(&mut self) -> Vec<dom::Node> {
     let mut nodes = Vec::new();
     loop {
       self.p.consume_whitespace();
       if self.p.eof() || self.p.starts_with("</") { break }
-      nodes.push(self.parse_node());
+      if self.p.starts_with("<style") {
+        let stylesheet = self.parse_style_element();
+        self.stylesheets.push(stylesheet);
+      } else {
+        nodes.push(self.parse_node());        
+      }
     }
 
     nodes
   }
+
+  // parse the contents of a <style> element and
+  // return a css::Stylesheet
+  fn parse_style_element(&mut self) -> css::Stylesheet {
+    assert!(self.p.consume_char() == '<');
+    let tag_name = self.parse_tag_name();
+    assert!(tag_name.as_slice() == "style");
+
+    self.p.consume_whitespace();
+    assert!(self.p.consume_char() == '>'); // only inline stylesheets for now
+
+    let mut style = String::new();
+
+    while !self.p.eof() && !self.p.starts_with("</style>") {
+      style.push(self.p.consume_char());
+    }
+
+    assert!(self.p.consume_char() == '<');
+    assert!(self.p.consume_char() == '/');
+    assert!(self.parse_tag_name() == tag_name);
+    assert!(self.p.consume_char() == '>');
+
+    css::parse(style)
+  }
 }
 
-// parse HTML source and return a node
-// create root "html" node if there isn't
-// already a single root
+// parse HTML source and return a root document node
 pub fn parse(source: String) -> dom::Node {
-  let mut nodes = Parser {
+  let mut parser = Parser {
     p: parser::Parser {
       pos: 0u,
       input: source,
-    }
-  }.parse_nodes();
+    },
+    stylesheets: Vec::new(), 
+  };
 
-  if nodes.len() == 1 {
-    nodes.swap_remove(0).unwrap()
-  } else {
-    dom::elem("html".to_string(), HashMap::new(), nodes)
-  }
+  let nodes = parser.parse_nodes();
+
+  dom::document(nodes, parser.stylesheets)
 }
