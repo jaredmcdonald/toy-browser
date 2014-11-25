@@ -4,16 +4,50 @@ mod dom;
 mod parser;
 mod html;
 mod css;
+mod style;
 
 fn main() {
-  println!("Testing module \"dom\"...");
+  println!("\nTesting module \"dom\"...\n");
   test_dom();
 
-  println!("Testing module \"html\"...");
+  println!("\nTesting module \"html\"...\n");
   test_html();
 
-  println!("Testing module \"css\"...");
+  println!("\nTesting module \"css\"...\n");
   test_css();
+
+  println!("\nTesting module \"style\"...\n");
+  test_style();
+}
+
+fn test_style() {
+  let stylesheet = css::parse(".foo { color: #000000; }".to_string());
+  let dom_tree = html::parse("<body><div class=\"foo\">hello world</div></body>".to_string());
+  let styled_node = style::style_tree(&dom_tree, &stylesheet);
+  println!("(1)\n{}\n", styled_node);
+
+  let html_source = "
+    <html>
+      <style>
+        .foo { color: red; }
+      </style>
+      <body>
+        <!-- A comment -->
+        <h1>Title</h1>
+          <div id=\"main\" class=\"test\">
+              <p>Hello <em>world</em>!</p>
+          </div>
+      </body>
+    </html>".to_string();
+  let dom_tree_2 = html::parse(html_source);
+  let new_vec = Vec::new();
+  let stylesheets = match dom_tree_2.node_type {
+    dom::NodeType::Document(ref elem) => elem.stylesheets(),
+    _ => &new_vec
+  };
+  let styled_node_2 = style::style_tree(&dom_tree_2, &stylesheets[0]);
+
+  println!("(2)\n{}\n", styled_node_2);
 }
 
 fn test_css() {

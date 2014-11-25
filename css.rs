@@ -10,7 +10,7 @@ pub type Specificity = (uint, uint, uint);
 
 #[deriving(Show)]
 pub struct Stylesheet {
-  rules: Vec<Rule>,
+  pub rules: Vec<Rule>,
 }
 
 impl Stylesheet {
@@ -44,13 +44,13 @@ impl Stylesheet {
 }
 
 #[deriving(Show)]
-struct Rule {
-  selectors: Vec<Selector>,
-  declarations: Vec<Declaration>,
+pub struct Rule {
+  pub selectors: Vec<Selector>,
+  pub declarations: Vec<Declaration>,
 }
 
 #[deriving(Show)]
-enum Selector {
+pub enum Selector {
   Simple(SimpleSelector),
 }
 
@@ -66,26 +66,26 @@ impl Selector {
 }
 
 #[deriving(Show)]
-struct SimpleSelector {
-  tag_name: Option<String>,
-  id: Option<String>,
-  class: Vec<String>,
+pub struct SimpleSelector {
+  pub tag_name: Option<String>,
+  pub id: Option<String>,
+  pub class: Vec<String>,
 }
 
 #[deriving(Show)]
-struct Declaration {
-  name: String,
-  value: Value,
+pub struct Declaration {
+  pub name: String,
+  pub value: Value,
 }
 
-#[deriving(Show)]
-enum Value {
+#[deriving(Show, Clone)]
+pub enum Value {
   Keyword(String),
   Length(f32, Unit),
   ColorValue(Color),
 }
 
-#[deriving(Show)]
+#[deriving(Show, Clone)]
 enum Unit {
   Px,
   Percentage,
@@ -93,7 +93,7 @@ enum Unit {
   UnknownUnit,
 }
 
-#[deriving(Show)]
+#[deriving(Show, Clone)]
 struct Color {
   r: u8,
   g: u8,

@@ -1,6 +1,7 @@
 //! DOM (only implements text, comment and element nodes)
 
 use std::collections::HashMap;
+use std::collections::HashSet;
 use css;
 
 pub type AttrMap = HashMap<String, String>;
@@ -27,7 +28,7 @@ pub struct ElementData {
 
 #[deriving(Show)]
 pub struct DocumentData {
-  stylesheets: Vec<css::Stylesheet>,
+  pub stylesheets: Vec<css::Stylesheet>,
 }
 
 // constructors
@@ -81,5 +82,34 @@ impl Node {
     for child_node in self.children.iter() {
       child_node.pretty_print(indent_level + 1)
     }
+  }
+}
+
+impl ElementData {
+
+  // get attribute from self.attributes
+  pub fn get_attribute(&self, key: &str) -> Option<&String> {
+    self.attributes.get(key)
+  }
+
+  // get id
+  pub fn id(&self) -> Option<&String> {
+    self.get_attribute("id")
+  }
+
+  // get classes as HashSet<&str>
+  pub fn classes(&self) -> HashSet<&str> {
+    match self.get_attribute("class") {
+      Some(classlist) => classlist.as_slice().split(' ').collect(),
+      None => HashSet::new()
+    }
+  }
+
+}
+
+impl DocumentData {
+
+  pub fn stylesheets(&self) -> &Vec<css::Stylesheet> {
+    &self.stylesheets
   }
 }
