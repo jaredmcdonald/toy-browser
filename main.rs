@@ -29,7 +29,7 @@ fn test_style() {
   let html_source = "
     <html>
       <style>
-        .foo { color: red; }
+        .test, p { color: red; }
       </style>
       <body>
         <!-- A comment -->
@@ -60,7 +60,7 @@ fn test_css() {
 
     /*
       a css comment
-    */ /* and another one */ /* 
+    */ /* and another one */ /*
       how about a third in a row?
     */
 
