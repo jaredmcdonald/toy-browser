@@ -5,6 +5,7 @@ mod parser;
 mod html;
 mod css;
 mod style;
+mod layout;
 
 fn main() {
   println!("\nTesting module \"dom\"...\n");
@@ -18,6 +19,42 @@ fn main() {
 
   println!("\nTesting module \"style\"...\n");
   test_style();
+
+  println!("\nTesting module \"layout\"...\n");
+  test_layout();
+}
+
+fn test_layout() {
+  let stylesheet = css::parse("
+    body,
+    div,
+    h1,
+    p {
+      display: block;
+    }
+    .hide {
+      display: none;
+    }".to_string());
+
+    let dom = html::parse("
+      <body>
+        <h1>Hello</h1>
+        <div>
+          <p>this is a div</p>
+          <p>this is another with an <span>inline element</span></p>
+        </div>
+        <div class=\"hide\">
+          <p>this shouldn't be in the layout tree</p>
+        </div>
+        <span>inline element that should get an anonymous block parent</span>
+      </body>
+    ".to_string());
+
+    let style_tree = style::style_tree(&dom, &stylesheet);
+
+    let layout_tree = layout::build_layout_tree(&style_tree);
+
+    layout_tree.pretty_print(0);
 }
 
 fn test_style() {

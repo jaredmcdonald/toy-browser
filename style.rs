@@ -4,6 +4,7 @@
 use std::collections::HashMap;
 use css;
 use dom;
+use layout;
 
 pub type PropertyMap = HashMap<String, css::Value>;
 pub type MatchedRule<'a> = (css::Specificity, &'a css::Rule);
@@ -15,6 +16,25 @@ pub struct StyledNode<'a> {
   pub children: Vec<StyledNode<'a>>,
 }
 
+impl<'a> StyledNode<'a> {
+  // get value of `name` if it has it
+  pub fn value(&self, name: &str) -> Option<css::Value> {
+    self.specified_values.get(name).map(|v| v.clone())
+  }
+
+  // get 'display' value (default: inline)
+  pub fn display(&self) -> layout::Display {
+    match self.value("display") {
+      Some(css::Value::Keyword(s)) => match s.as_slice() {
+        "block" => layout::Display::Block,
+        "none" => layout::Display::None,
+        _ => layout::Display::Inline,
+      },
+      _ => layout::Display::Inline
+    }
+  }
+}
+
 // does `elem` match `selector`?
 fn matches(elem: &dom::ElementData, selector: &css::Selector) -> bool {
   match *selector {
@@ -22,7 +42,7 @@ fn matches(elem: &dom::ElementData, selector: &css::Selector) -> bool {
   }
 }
 
-// does `elem` match the given `css::SimpleSelector`? 
+// does `elem` match the given `css::SimpleSelector`?
 fn matches_simple_selector(elem: &dom::ElementData, selector: &css::SimpleSelector) -> bool {
   // type
   if selector.tag_name.iter().any(|name| elem.tag_name != *name) {
